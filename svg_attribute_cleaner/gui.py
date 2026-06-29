@@ -71,7 +71,9 @@ class SvgAttributeCleanerApp(tk.Tk):
         ttk.Label(frame, text=title, style="CardTitle.TLabel").pack(anchor="w")
         if hint:
             ttk.Label(frame, text=hint, style="Hint.TLabel").pack(anchor="w", pady=(2, 10))
-        return frame
+        body = ttk.Frame(frame, style="Card.TFrame")
+        body.pack(fill="both", expand=True)
+        return body
 
     def _build_ui(self) -> None:
         root = ttk.Frame(self, style="App.TFrame", padding=(24, 20))
