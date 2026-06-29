@@ -1,0 +1,40 @@
+name: Build Windows EXE
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt pytest pyinstaller
+      - name: Run tests
+        run: python -m pytest
+      - name: Compile check
+        run: python -m compileall svg_attribute_cleaner svg_attribute_cleaner.py
+      - name: Build executable
+        run: pyinstaller --onefile --windowed --name SvgAttributeCleaner --add-data "configs;configs" svg_attribute_cleaner.py
+      - name: Create release zip
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release/package/configs, release/package/scripts, release/package/output | Out-Null
+          Copy-Item dist/SvgAttributeCleaner.exe release/package/
+          Copy-Item README.md release/package/
+          Copy-Item configs/default.yaml release/package/configs/
+          Copy-Item scripts/run_gui.bat release/package/scripts/
+          Copy-Item output/.gitkeep release/package/output/
+          Compress-Archive -Path release/package/* -DestinationPath release/SvgAttributeCleaner-windows-x64.zip -Force
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SvgAttributeCleaner-windows-x64
+          path: release/SvgAttributeCleaner-windows-x64.zip

@@ -1,0 +1,3 @@
+default_output_suffix: _cleaned
+batch_output_dir: output_cleaned
+report_name: clean_report.json
